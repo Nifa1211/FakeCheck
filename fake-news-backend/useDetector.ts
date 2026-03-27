@@ -1,6 +1,6 @@
-import { analyzeText } from '@/lib/utils'
+import { useState, useCallback } from 'react'
 import type { ModelId, PredictionResult } from '@/types'
-import { useCallback, useState } from 'react'
+import { analyzeText } from '@/lib/utils'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5000'
 
