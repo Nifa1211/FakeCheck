@@ -50,11 +50,9 @@ export function analyzeText(text: string, modelId: ModelId): PredictionResult {
     }
   })
 
-  // Caps ratio heuristic
   const capsRatio = (text.match(/[A-Z]/g)?.length ?? 0) / text.length
   if (capsRatio > 0.15) fakeScore += 10
 
-  // Exclamation marks
   const exclamations = (text.match(/!/g)?.length ?? 0)
   fakeScore += Math.min(exclamations * 5, 20)
 
@@ -71,6 +69,7 @@ export function analyzeText(text: string, modelId: ModelId): PredictionResult {
     modelId,
     signals: detectedSignals.slice(0, 6),
     timestamp: new Date(),
+    source: 'mock',
   }
 }
 

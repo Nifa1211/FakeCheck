@@ -2,27 +2,31 @@ import os
 import re
 import string
 import joblib
-import numpy as np
-import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from React frontend
+CORS(app)
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "models")
 
-# ── Load saved artefacts ───────────────────────────────────────────────────────
-vectorizer = joblib.load(os.path.join(MODEL_DIR, "vectorizer.pkl"))
-models = {
-    "lr": joblib.load(os.path.join(MODEL_DIR, "lr.pkl")),
-    "dt": joblib.load(os.path.join(MODEL_DIR, "dt.pkl")),
-    "gb": joblib.load(os.path.join(MODEL_DIR, "gb.pkl")),
-    "rf": joblib.load(os.path.join(MODEL_DIR, "rf.pkl")),
-}
+# ── Load artefacts ─────────────────────────────────────────────────────────────
+try:
+    vectorizer = joblib.load(os.path.join(MODEL_DIR, "vectorizer.pkl"))
+    models = {
+        "lr": joblib.load(os.path.join(MODEL_DIR, "lr.pkl")),
+        "dt": joblib.load(os.path.join(MODEL_DIR, "dt.pkl")),
+        "gb": joblib.load(os.path.join(MODEL_DIR, "gb.pkl")),
+        "rf": joblib.load(os.path.join(MODEL_DIR, "rf.pkl")),
+    }
+    print("✅  All models loaded successfully.")
+except FileNotFoundError as e:
+    raise SystemExit(
+        f"\n❌  Model files not found: {e}"
+        "\n    Run  python train.py  first to generate the .pkl files.\n"
+    )
 
-# ── Same preprocessing as notebook ────────────────────────────────────────────
+# ── Preprocessing — identical to notebook wordopt() ───────────────────────────
 def wordopt(text: str) -> str:
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
@@ -35,22 +39,23 @@ def wordopt(text: str) -> str:
     return text
 
 
-def predict_all(text: str) -> dict:
-    """Run text through all four models, return predictions + probabilities."""
-    cleaned   = wordopt(text)
+def run_all_models(text: str) -> dict:
+    """Vectorise text and run all four classifiers."""
+    cleaned    = wordopt(text)
     vectorized = vectorizer.transform([cleaned])
 
     results = {}
     for model_id, model in models.items():
-        pred = int(model.predict(vectorized)[0])
-        # Most sklearn classifiers support predict_proba
+        pred = int(model.predict(vectorized)[0])   # 0 = Fake, 1 = Real
+
         if hasattr(model, "predict_proba"):
-            proba = model.predict_proba(vectorized)[0]
+            proba      = model.predict_proba(vectorized)[0]
             confidence = round(float(max(proba)) * 100, 1)
         else:
-            confidence = 100.0  # fallback
+            confidence = 100.0
+
         results[model_id] = {
-            "prediction": pred,          # 0 = Fake, 1 = Real
+            "prediction": pred,
             "label":      "Real" if pred == 1 else "Fake",
             "isFake":     pred == 0,
             "confidence": confidence,
@@ -68,32 +73,37 @@ def health():
 @app.route("/predict", methods=["POST"])
 def predict():
     """
-    Body (JSON):
-        { "text": "...", "model": "rf" }   ← model is optional, defaults to "rf"
+    POST body:  { "text": "...", "model": "rf" }
+                model defaults to "rf", options: lr | dt | gb | rf
 
     Response:
-        {
-          "model":      "rf",
-          "isFake":     true,
-          "label":      "Fake",
-          "confidence": 94.2,
-          "all": { "lr": {...}, "dt": {...}, "gb": {...}, "rf": {...} }
-        }
+    {
+      "model": "rf",
+      "isFake": true,
+      "label": "Fake",
+      "confidence": 94.2,
+      "all": {
+        "lr": { "isFake": true,  "label": "Fake", "confidence": 98.1, "prediction": 0 },
+        "dt": { ... },
+        "gb": { ... },
+        "rf": { ... }
+      }
+    }
     """
     body = request.get_json(silent=True)
     if not body or "text" not in body:
         return jsonify({"error": "Missing 'text' field in request body"}), 400
 
-    text       = str(body["text"]).strip()
-    model_id   = str(body.get("model", "rf")).lower()
+    text     = str(body["text"]).strip()
+    model_id = str(body.get("model", "rf")).lower()
 
     if not text:
         return jsonify({"error": "Text cannot be empty"}), 400
 
     if model_id not in models:
-        return jsonify({"error": f"Unknown model '{model_id}'. Choose from: {list(models.keys())}"}), 400
+        return jsonify({"error": f"Unknown model '{model_id}'. Use: {list(models.keys())}"}), 400
 
-    all_results = predict_all(text)
+    all_results = run_all_models(text)
     chosen      = all_results[model_id]
 
     return jsonify({
@@ -101,13 +111,13 @@ def predict():
         "isFake":     chosen["isFake"],
         "label":      chosen["label"],
         "confidence": chosen["confidence"],
-        "all":        all_results,
+        "all":        all_results,      # frontend uses this for the 4-model grid
     })
 
 
 @app.route("/predict/all", methods=["POST"])
-def predict_all_route():
-    """Run all four models and return every result at once."""
+def predict_all():
+    """Run all four models and return all results."""
     body = request.get_json(silent=True)
     if not body or "text" not in body:
         return jsonify({"error": "Missing 'text' field"}), 400
@@ -116,7 +126,7 @@ def predict_all_route():
     if not text:
         return jsonify({"error": "Text cannot be empty"}), 400
 
-    return jsonify(predict_all(text))
+    return jsonify(run_all_models(text))
 
 
 if __name__ == "__main__":

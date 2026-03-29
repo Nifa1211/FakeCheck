@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import { SAMPLE_ARTICLES } from '@/data/constants'
+import { cn } from '@/types/lib/utils'
 
 interface SamplePickerProps {
   onSelect: (text: string) => void

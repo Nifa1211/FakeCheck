@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import type { TabId } from '@/types'
+import { cn } from '@/types/lib/utils'
 import { ShieldCheck } from 'lucide-react'
 
 interface NavbarProps {

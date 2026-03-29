@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/types/lib/utils'
 
 interface BadgeProps {
   children: React.ReactNode

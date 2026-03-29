@@ -1,5 +1,5 @@
-import { analyzeText } from '@/lib/utils'
-import type { ModelId, PredictionResult } from '@/types'
+import type { AllModelResults, ModelId, PredictionResult } from '@/types'
+import { analyzeText } from '@/types/lib/utils'
 import { useCallback, useState } from 'react'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5000'
@@ -11,15 +11,15 @@ interface DetectorState {
   isLoading: boolean
   error: string | null
   history: PredictionResult[]
-  usingMockApi: boolean
 }
 
+// Matches exactly what app.py /predict returns
 interface ApiResponse {
-  isFake: boolean
-  confidence: number
   model: string
-  label: string
-  all: Record<string, { isFake: boolean; confidence: number; label: string }>
+  isFake: boolean
+  label: 'Fake' | 'Real'
+  confidence: number
+  all: AllModelResults
 }
 
 export function useDetector() {
@@ -30,7 +30,6 @@ export function useDetector() {
     isLoading: false,
     error: null,
     history: [],
-    usingMockApi: false,
   })
 
   const setText = useCallback((text: string) => {
@@ -47,19 +46,18 @@ export function useDetector() {
     setState(prev => ({ ...prev, isLoading: true, result: null, error: null }))
 
     let result: PredictionResult
-    let usingMockApi = false
 
     try {
-      // ── Try real Flask API first ─────────────────────────────────────────
+      // ── Real Flask API ───────────────────────────────────────────────────
       const response = await fetch(`${API_BASE}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: state.text, model: state.selectedModel }),
-        signal: AbortSignal.timeout(8000), // 8s timeout
+        signal: AbortSignal.timeout(8000),
       })
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
+        const err = await response.json().catch(() => ({})) as { error?: string }
         throw new Error(err.error ?? `Server error ${response.status}`)
       }
 
@@ -69,24 +67,28 @@ export function useDetector() {
         isFake:     data.isFake,
         confidence: Math.round(data.confidence),
         modelId:    state.selectedModel,
-        signals:    [],
+        signals:    [],           // backend doesn't return signals — mock fills these
         timestamp:  new Date(),
+        allResults: data.all,     // all 4 model results from API
+        source:     'api',
       }
 
     } catch (apiErr) {
-      // ── Fall back to local mock if API is offline ────────────────────────
-      console.warn('Flask API unreachable, using mock analyser:', apiErr)
-      usingMockApi = true
-
+      // ── Mock fallback (Flask offline) ────────────────────────────────────
+      console.warn('Flask API unreachable, using local mock:', apiErr)
       await new Promise(res => setTimeout(res, 900))
-      result = analyzeText(state.text, state.selectedModel)
+
+      result = {
+        ...analyzeText(state.text, state.selectedModel),
+        source: 'mock',
+      }
     }
 
     setState(prev => ({
       ...prev,
       isLoading: false,
       result,
-      usingMockApi,
+      error: null,
       history: [result, ...prev.history].slice(0, 10),
     }))
   }, [state.text, state.selectedModel])

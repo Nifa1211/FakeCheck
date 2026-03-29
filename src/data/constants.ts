@@ -1,4 +1,4 @@
-import type { Model, ModelMetrics, ModelId, SampleArticle } from '@/types'
+import type { Model, ModelId, ModelMetrics, SampleArticle } from '@/types'
 
 export const MODELS: Model[] = [
   {
@@ -47,11 +47,12 @@ export const MODELS: Model[] = [
   },
 ]
 
+// Real metrics from your notebook output
 export const MODEL_METRICS: Record<ModelId, ModelMetrics> = {
-  lr: { accuracy: 92.4, precision: 91.8, recall: 93.1, f1: 92.4, trainTime: '0.4s', parameters: '~18K' },
-  dt: { accuracy: 88.7, precision: 87.9, recall: 89.4, f1: 88.6, trainTime: '1.2s', parameters: '~4K nodes' },
-  gb: { accuracy: 95.1, precision: 94.7, recall: 95.5, f1: 95.1, trainTime: '8.3s', parameters: '~320K' },
-  rf: { accuracy: 96.3, precision: 96.0, recall: 96.6, f1: 96.3, trainTime: '4.7s', parameters: '~2.1M' },
+  lr: { accuracy: 98.8, precision: 99.0, recall: 98.5, f1: 98.8, trainTime: '0.4s', parameters: '~18K' },
+  dt: { accuracy: 99.5, precision: 99.0, recall: 99.0, f1: 99.0, trainTime: '1.2s', parameters: '~4K nodes' },
+  gb: { accuracy: 99.4, precision: 99.0, recall: 99.0, f1: 99.0, trainTime: '8.3s', parameters: '~320K' },
+  rf: { accuracy: 98.7, precision: 99.0, recall: 98.0, f1: 98.5, trainTime: '4.7s', parameters: '~2.1M' },
 }
 
 export const SAMPLE_ARTICLES: SampleArticle[] = [
@@ -82,8 +83,8 @@ export const SAMPLE_ARTICLES: SampleArticle[] = [
 ]
 
 export const PERFORMANCE_CHART_DATA = [
-  { name: 'LR',   accuracy: 92.4, precision: 91.8, recall: 93.1, f1: 92.4, fill: '#22c55e' },
-  { name: 'DT',   accuracy: 88.7, precision: 87.9, recall: 89.4, f1: 88.6, fill: '#f59e0b' },
-  { name: 'GB',   accuracy: 95.1, precision: 94.7, recall: 95.5, f1: 95.1, fill: '#a78bfa' },
-  { name: 'RF',   accuracy: 96.3, precision: 96.0, recall: 96.6, f1: 96.3, fill: '#38bdf8' },
+  { name: 'LR', accuracy: 98.8, precision: 99.0, recall: 98.5, f1: 98.8, fill: '#22c55e' },
+  { name: 'DT', accuracy: 99.5, precision: 99.0, recall: 99.0, f1: 99.0, fill: '#f59e0b' },
+  { name: 'GB', accuracy: 99.4, precision: 99.0, recall: 99.0, f1: 99.0, fill: '#a78bfa' },
+  { name: 'RF', accuracy: 98.7, precision: 99.0, recall: 98.0, f1: 98.5, fill: '#38bdf8' },
 ]

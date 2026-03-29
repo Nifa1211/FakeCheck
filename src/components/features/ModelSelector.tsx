@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils'
 import { MODEL_METRICS, MODELS } from '@/data/constants'
 import type { ModelId } from '@/types'
+import { cn } from '@/types/lib/utils'
 
 interface ModelSelectorProps {
   selected: ModelId

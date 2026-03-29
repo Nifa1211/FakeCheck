@@ -1,9 +1,9 @@
-import { useRef } from 'react'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
-import { SamplePicker } from './SamplePicker'
 import type { ModelId } from '@/types'
+import { cn } from '@/types/lib/utils'
+import { X } from 'lucide-react'
+import { useRef } from 'react'
+import { SamplePicker } from './SamplePicker'
 
 interface ArticleInputProps {
   text: string
