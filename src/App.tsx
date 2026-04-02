@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { Navbar } from '@/components/layout/Navbar'
+import { AboutPage } from '@/pages/AboutPage'
 import { DetectPage } from '@/pages/DetectPage'
 import { PerformancePage } from '@/pages/PerformancePage'
-import { AboutPage } from '@/pages/AboutPage'
 import type { TabId } from '@/types'
+import { useState } from 'react'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('detect')
@@ -27,7 +27,7 @@ export default function App() {
         <footer className="border-t border-surface-800/60 py-6 mt-10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <span className="text-xs text-surface-600 font-mono">
-              FakeCheck — ML Fake News Detection
+              FakeCheck 
             </span>
             <span className="text-xs text-surface-600 font-mono">
               LR · DT · GB · RF

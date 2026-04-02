@@ -118,27 +118,7 @@ export function AboutPage() {
       </div>
 
       {/* System requirements */}
-      <div className="mt-6 glass-card p-5">
-        <h2 className="text-sm font-semibold text-surface-200 mb-3">System requirements</h2>
-        <div className="grid grid-cols-2 gap-4 text-xs text-surface-400">
-          <div>
-            <p className="text-[11px] text-surface-500 uppercase tracking-widest mb-2">Hardware</p>
-            <ul className="space-y-1 font-mono">
-              <li>4 GB RAM (minimum)</li>
-              <li>Intel i3 or equivalent</li>
-              <li>500 MB free disk space</li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-[11px] text-surface-500 uppercase tracking-widest mb-2">Software</p>
-            <ul className="space-y-1 font-mono">
-              <li>Python 3.8+</li>
-              <li>Node.js 18+</li>
-              <li>Anaconda (optional)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+     
     </div>
   )
 }
