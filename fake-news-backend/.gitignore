@@ -1,7 +1,6 @@
 __pycache__/
 *.py[cod]
-*.pkl
-models/
+
 *.csv
 .env
 venv/
