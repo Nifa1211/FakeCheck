@@ -39,7 +39,7 @@ function MetricCell({
   label,
   value,
   color,
-  isText = false,
+  
 }: {
   label: string
   value: string
